@@ -1,0 +1,44 @@
+% Titanic Survival Prediction Summary
+
+# Preprocessing
+- Data loaded from processed CSV files: train, train_output, and test sets.
+- Features engineered: Sex, Pclass, Embarked, TicketPrefix, Title, CabinLetter, Age, FamilySize, Fare, isAlone.
+- One-hot encoding applied to categorical features.
+- Numerical features scaled using StandardScaler.
+- PCA used for visualization (2 components), showing separation by survival.
+
+# Model Training & Evaluation
+
+## Logistic Regression
+- Pipeline: Preprocessing + LogisticRegression (max_iter=1000, random_state=42)
+- Accuracy evaluated on the validation set.
+- Confusion Matrix and Classification Report included.
+
+## Random Forest
+- Pipeline: Preprocessing + RandomForestClassifier (n_estimators=64, max_depth=20, min_samples_split=10, min_samples_leaf=1, random_state=42)
+- Accuracy evaluated on the validation set.
+- Classification Report included.
+- Cross-validation (cv=5): Mean and Std reported.
+
+## XGBoost
+- Pipeline: Preprocessing + XGBClassifier (random_state=42, n_estimators=200, max_depth=4, learning_rate=0.1, subsample=0.8, colsample_bytree=0.8)
+- Accuracy evaluated on the validation set.
+- Confusion Matrix and Classification Report included.
+- Cross-validation (cv=5): Mean and Std reported.
+- Hyperparameter tuning (RandomizedSearchCV) code provided but commented out.
+
+# Results Summary
+- All models evaluated using accuracy, confusion matrix, and classification report.
+- Cross-validation used for Random Forest and XGBoost to assess model stability.
+- PCA visualization shows feature separation by survival.
+
+# Recommendations
+- XGBoost and Random Forest provide robust results; further hyperparameter tuning may improve performance.
+- Feature engineering and preprocessing are crucial for model accuracy.
+
+# Figures
+- PCA projection plot available in reports/Figures/output.png.
+
+---
+
+*This summary was generated based on the modeling.ipynb notebook, describing preprocessing steps, model pipelines, and evaluation metrics for Titanic survival prediction.*
