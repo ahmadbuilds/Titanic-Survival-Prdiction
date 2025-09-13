@@ -18,7 +18,7 @@ model_ensemble=joblib.load("../models/model_ensemble.joblib")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[os.loadenv("ALLOW_ORIGIN")],
-    allow_methods=["GET"],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
