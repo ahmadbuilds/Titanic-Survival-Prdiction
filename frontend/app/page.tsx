@@ -14,6 +14,11 @@ interface FormData {
   CabinLetter: string
 }
 
+interface PredictionResponse {
+  "Logistic Regression Prediction": number,
+  "Random Forest Prediction": number,
+  "Ensemble Model Prediction": number
+}
 export default function Home() {
   const [formData, setFormData] = useState<FormData>({
     Pclass: '',
@@ -28,6 +33,7 @@ export default function Home() {
     CabinLetter: ''
   });
 
+  const [prediction, setPrediction] = useState<PredictionResponse | null>(null);
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -124,7 +130,7 @@ export default function Home() {
     if (Object.keys(newErrors).length === 0) {
       setIsSubmitted(true);
       
-      const prediction=await fetch(
+      const response=await fetch(
         process.env.NEXT_PUBLIC_BACKEND_URL+'/Prediction',
         {
           method: 'POST',
@@ -133,8 +139,10 @@ export default function Home() {
           },
           body: JSON.stringify(formData)
         }
-      )
-      return prediction.json();
+      ).then(res => res.json());
+
+      setPrediction(response);
+
     }
   };
 
@@ -398,20 +406,16 @@ export default function Home() {
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                 <div className="bg-white/10 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-cyan-400">85%</div>
+                  <div className="text-2xl font-bold text-cyan-400">{prediction?prediction["Logistic Regression Prediction"]:""}</div>
                   <div className="text-gray-300">Logistic Regression Prediction</div>
                 </div>
                 <div className="bg-white/10 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-blue-400">{formData.Pclass}</div>
-                  <div className="text-gray-300">Class</div>
+                  <div className="text-2xl font-bold text-blue-400">{prediction?prediction["Random Forest Prediction"]:""}</div>
+                  <div className="text-gray-300">Random Forest Prediction</div>
                 </div>
                 <div className="bg-white/10 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-purple-400">{formData.Age}</div>
-                  <div className="text-gray-300">Age</div>
-                </div>
-                <div className="bg-white/10 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-pink-400">£{formData.Fare}</div>
-                  <div className="text-gray-300">Fare</div>
+                  <div className="text-2xl font-bold text-purple-400">{prediction?prediction["Ensemble Model Prediction"]:""}</div>
+                  <div className="text-gray-300">XGBoost Prediction</div>
                 </div>
               </div>
             </div>
