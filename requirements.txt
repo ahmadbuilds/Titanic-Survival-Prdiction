@@ -1,6 +1,6 @@
+fastapi[standard]
 pandas
 numpy
 scikit-learn
 matplotlib
 xgboost
-fastapi
