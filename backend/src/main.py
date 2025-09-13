@@ -17,7 +17,7 @@ model_ensemble=joblib.load("../models/xgboost_model.pkl")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[os.getenv("ALLOW_ORIGIN")],
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
