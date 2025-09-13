@@ -19,6 +19,7 @@ interface PredictionResponse {
   "Random Forest Prediction": number,
   "Ensemble Model Prediction": number
 }
+
 export default function Home() {
   const [formData, setFormData] = useState<FormData>({
     Pclass: '',
@@ -36,6 +37,7 @@ export default function Home() {
   const [prediction, setPrediction] = useState<PredictionResponse | null>(null);
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -128,21 +130,36 @@ export default function Home() {
     setErrors(newErrors);
     
     if (Object.keys(newErrors).length === 0) {
-      setIsSubmitted(true);
-      
-      const response=await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL+'/Prediction',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(formData)
+      setIsLoading(true);
+      setIsSubmitted(false); 
+      setPrediction(null); 
+
+      try {
+        const start = Date.now();
+        const response = await fetch(
+          process.env.NEXT_PUBLIC_BACKEND_URL + '/Prediction',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+          }
+        ).then(res => res.json());
+
+        
+        const elapsed = Date.now() - start;
+        if (elapsed < 2000) {
+          await new Promise(resolve => setTimeout(resolve, 1000 - elapsed));
         }
-      ).then(res => res.json());
 
-      setPrediction(response);
-
+        setPrediction(response);
+        setIsSubmitted(true);
+      } catch (error) {
+        console.error('Prediction error:', error);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -259,7 +276,7 @@ export default function Home() {
                   value={formData.Fare}
                   onChange={(e) => handleInputChange('Fare', e.target.value)}
                   placeholder="Enter Fare amount"
-                  className={`w-full px-4 py-3 bg-white/10 border-2 rounded-lg text-white placeholder-gray-400 transition-all duration-300 focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm hover:bg-white/20 ${errors.Fare ? 'border-red-400 animate-shake' : 'border-red-400'}`}
+                  className={`w-full px-4 py-3 bg-white/10 border-2 rounded-lg text-white placeholder-gray-400 transition-all duration-300 focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm hover:bg-white/20 ${errors.Fare ? 'border-red-400 animate-shake' : 'border-white/30'}`}
                 />
                 {errors.Fare && (
                   <p className="text-red-400 text-sm mt-1 animate-pulse">{errors.Fare}</p>
@@ -391,31 +408,45 @@ export default function Home() {
             <div className="mt-8 text-center">
               <button
                 onClick={handleSubmit}
-                className="px-12 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold text-lg rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 hover:from-cyan-400 hover:to-blue-400 focus:outline-none focus:ring-4 focus:ring-cyan-400/50"
+                disabled={isLoading}
+                className={`px-12 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold text-lg rounded-full shadow-xl hover:shadow-2xl transform transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-cyan-400/50 flex items-center justify-center mx-auto min-w-[250px] ${
+                  isLoading 
+                    ? 'opacity-75 cursor-not-allowed scale-95' 
+                    : 'hover:scale-105 hover:from-cyan-400 hover:to-blue-400'
+                }`}
               >
-                🔮 Predict Survival
+                {isLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-3"></div>
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    🔮 Predict Survival
+                  </>
+                )}
               </button>
             </div>
           </div>
 
           {/* Results */}
-          {isSubmitted && (
+          {isSubmitted && prediction && !isLoading && (
             <div className="mt-8 bg-gradient-to-r from-green-500/20 to-emerald-500/20 backdrop-blur-lg rounded-2xl p-6 border border-green-400/30 animate-fadeIn">
               <h3 className="text-2xl font-bold text-green-400 mb-4 text-center">
                 ✅ Prediction Complete!
               </h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                 <div className="bg-white/10 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-cyan-400">{prediction?prediction["Logistic Regression Prediction"]:""}</div>
-                  <div className="text-gray-300">Logistic Regression Prediction</div>
+                  <div className="text-2xl font-bold text-cyan-400">{prediction["Logistic Regression Prediction"]}</div>
+                  <div className="text-gray-300">Logistic Regression</div>
                 </div>
                 <div className="bg-white/10 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-blue-400">{prediction?prediction["Random Forest Prediction"]:""}</div>
-                  <div className="text-gray-300">Random Forest Prediction</div>
+                  <div className="text-2xl font-bold text-blue-400">{prediction["Random Forest Prediction"]}</div>
+                  <div className="text-gray-300">Random Forest</div>
                 </div>
                 <div className="bg-white/10 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-purple-400">{prediction?prediction["Ensemble Model Prediction"]:""}</div>
-                  <div className="text-gray-300">XGBoost Prediction</div>
+                  <div className="text-2xl font-bold text-purple-400">{prediction["Ensemble Model Prediction"]}</div>
+                  <div className="text-gray-300">XGBoost</div>
                 </div>
               </div>
             </div>
