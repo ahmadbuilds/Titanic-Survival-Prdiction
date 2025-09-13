@@ -4,8 +4,12 @@ from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 from typing import Optional
 from pydantic import BaseModel
+from dotenv import load_dotenv
+import os
 
 app=FastAPI()
+
+load_dotenv()
 
 logistic_regression_model=joblib.load("../models/logistic_regression.joblib")
 random_forest_model=joblib.load("../models/random_forest.joblib")
@@ -13,7 +17,7 @@ model_ensemble=joblib.load("../models/model_ensemble.joblib")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[os.loadenv("ALLOW_ORIGIN")],
     allow_methods=["GET"],
     allow_headers=["*"],
 )
@@ -31,7 +35,7 @@ class PredictionInput(BaseModel):
     CabinLetter: Optional[str] = "unknown"
 
 
-@app.get("/Prediction")
+@app.post("/Prediction")
 async def get_prediction(input_data: PredictionInput):
     data_dict=input_data.dict()
 
