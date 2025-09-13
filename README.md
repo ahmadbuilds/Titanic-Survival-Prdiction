@@ -6,26 +6,19 @@ Predict survival on the Titanic using machine learning models and a modern web i
 
 ```
 Titanic Survival Prediction/
-├── data/
-│   ├── processed/
-│   │   ├── train.csv
-│   │   ├── train_output.csv
-│   │   └── test.csv
-│   └── raw/
-│       ├── gender_submission.csv
-│       ├── test.csv
-│       └── train.csv
-├── notebooks/
-│   ├── modeling.ipynb
-│   └── preprocessing.ipynb
-├── reports/
-│   ├── Figures/
-│   │   └── output.png
-│   └── summary.pdf
+├── backend/
+│   ├── data/
+│   ├── models/
+│   ├── notebooks/
+│   ├── reports/
+│   ├── requirements.txt
+│   └── src/
 ├── frontend/
-│   └── app/
-│       └── page.tsx
-├── requirements.txt
+│   ├── app/
+│   ├── public/
+│   ├── package.json
+│   └── README.md
+├── LICENSE
 └── README.md
 ```
 
@@ -49,9 +42,10 @@ cd Titanic-Survival-Prdiction
 
 ### 2. Python Environment & Dependencies
 
-Create a virtual environment and install dependencies:
+Navigate to the backend directory, create a virtual environment, and install dependencies:
 
 ```sh
+cd backend
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
@@ -106,7 +100,7 @@ npm run dev
 - `notebooks/modeling.ipynb`: Model training, evaluation, and visualization.
 - `frontend/app/page.tsx`: Main React page for user input and prediction display.
 - `reports/summary.pdf`: Summary of preprocessing, modeling, and results.
-- `requirements.txt`: Python dependencies (uses `fastapi[standard]` for full FastAPI support).
+- `backend/requirements.txt`: Python dependencies (uses `fastapi[standard]` for full FastAPI support).
 
 ## Contributing
 
