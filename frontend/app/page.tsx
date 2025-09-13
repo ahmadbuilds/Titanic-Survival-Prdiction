@@ -2,30 +2,30 @@
 import React, { useState, useEffect } from 'react';
 
 interface FormData {
-  pclass: string,
-  sex: string,
-  age: string,
-  fare: string,
-  embarked: string,
-  familySize: string,
+  Pclass: string,
+  Sex: string,
+  Age: string,
+  Fare: string,
+  Embarked: string,
+  FamilySize: string,
   isAlone: boolean,
-  title: string,
-  ticketPrefix: string,
-  cabinLetter: string
+  Title: string,
+  TicketPrefix: string,
+  CabinLetter: string
 }
 
 export default function Home() {
   const [formData, setFormData] = useState<FormData>({
-    pclass: '',
-    sex: '',
-    age: '',
-    fare: '',
-    embarked: '',
-    familySize: '',
+    Pclass: '',
+    Sex: '',
+    Age: '',
+    Fare: '',
+    Embarked: '',
+    FamilySize: '',
     isAlone: false,
-    title: '',
-    ticketPrefix: '',
-    cabinLetter: ''
+    Title: '',
+    TicketPrefix: '',
+    CabinLetter: ''
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
@@ -36,12 +36,12 @@ export default function Home() {
     setIsLoaded(true);
   }, []);
 
-  const titles = [
+  const Titles = [
     'Mr', 'Mrs', 'Miss', 'Master', 'Dr', 'Rev', 'Col', 'Major', 'Capt',
     'Countess', 'Don', 'Dona', 'Jonkheer', 'Lady', 'Mlle', 'Mme', 'Ms', 'Sir'
   ];
 
-  const ticketPrefixes = [
+  const TicketPrefix = [
     'PC', 'STON/O2', 'A/5', 'C.A.', 'S.O.C.', 'A/4', 'W./C.', 'SOTON/O.Q.',
     'A./5.', 'C', 'CA', 'F.C.C.', 'SC/PARIS', 'SO/C', 'W.E.P.', 'A/S',
     'S.W./PP', 'S.C./PARIS', 'C.A./SOTON', 'SC/AH', 'LINE'
@@ -52,48 +52,48 @@ export default function Home() {
   const validateForm = () => {
     const newErrors = {} as Record<keyof FormData, string>;
     
-    if (!formData.pclass) {
-      newErrors.pclass = 'Please select a passenger class';
-    } else if (formData.pclass === '0') {
-      newErrors.pclass = 'Passenger class cannot be 0';
+    if (!formData.Pclass) {
+      newErrors.Pclass = 'Please select a passenger class';
+    } else if (formData.Pclass === '0') {
+      newErrors.Pclass = 'Passenger class cannot be 0';
     }
     
-    if (!formData.sex) {
-      newErrors.sex = 'Please select gender';
+    if (!formData.Sex) {
+      newErrors.Sex = 'Please select gender';
     }
     
-    if (!formData.age) {
-      newErrors.age = 'Age is required';
-    } else if (parseFloat(formData.age) <= 0) {
-      newErrors.age = 'Age must be greater than 0';
+    if (!formData.Age) {
+      newErrors.Age = 'Age is required';
+    } else if (parseFloat(formData.Age) <= 0) {
+      newErrors.Age = 'Age must be greater than 0';
     }
     
-    if (!formData.fare) {
-      newErrors.fare = 'Fare is required';
-    } else if (parseFloat(formData.fare) < 0) {
-      newErrors.fare = 'Fare cannot be negative';
+    if (!formData.Fare) {
+      newErrors.Fare = 'Fare is required';
+    } else if (parseFloat(formData.Fare) < 0) {
+      newErrors.Fare = 'Fare cannot be negative';
     }
     
-    if (!formData.embarked) {
-      newErrors.embarked = 'Please select embarkation port';
+    if (!formData.Embarked) {
+      newErrors.Embarked = 'Please select embarkation port';
     }
     
-    if (!formData.familySize) {
-      newErrors.familySize = 'Family size is required';
-    } else if (parseInt(formData.familySize) < 1) {
-      newErrors.familySize = 'Family size must be at least 1';
+    if (!formData.FamilySize) {
+      newErrors.FamilySize = 'Family size is required';
+    } else if (parseInt(formData.FamilySize) < 1) {
+      newErrors.FamilySize = 'Family size must be at least 1';
     }
     
-    if (!formData.title) {
-      newErrors.title = 'Please select a title';
+    if (!formData.Title) {
+      newErrors.Title = 'Please select a Title';
     }
     
-    if (!formData.ticketPrefix) {
-      newErrors.ticketPrefix = 'Please select a ticket prefix';
+    if (!formData.TicketPrefix) {
+      newErrors.TicketPrefix = 'Please select a ticket prefix';
     }
     
-    if (!formData.cabinLetter) {
-      newErrors.cabinLetter = 'Please select a cabin letter';
+    if (!formData.CabinLetter) {
+      newErrors.CabinLetter = 'Please select a cabin letter';
     }
 
     return newErrors;
@@ -103,8 +103,7 @@ export default function Home() {
     setFormData(prev => {
       const newData = { ...prev, [field]: value };
       
-      // Auto-set isAlone if familySize is 1
-      if (field === 'familySize') {
+      if (field === 'FamilySize') {
         const size = parseInt(value as string, 10);
         if (size === 1) newData.isAlone = true;
         else if (size > 1) newData.isAlone = false;
@@ -118,14 +117,24 @@ export default function Home() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async() => {
     const newErrors = validateForm();
     setErrors(newErrors);
     
     if (Object.keys(newErrors).length === 0) {
       setIsSubmitted(true);
-      // Here you would typically send data to your prediction model
-      console.log('Form submitted:', formData);
+      
+      const prediction=await fetch(
+        process.env.NEXT_PUBLIC_BACKEND_URL+'/Prediction',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        }
+      )
+      return prediction.json();
     }
   };
 
@@ -176,18 +185,18 @@ export default function Home() {
                   Passenger Class *
                 </label>
                 <select
-                  value={formData.pclass}
-                  title='P Class'
-                  onChange={(e) => handleInputChange('pclass', e.target.value)}
-                  className={`w-full px-4 py-3 bg-white/10 border-2 rounded-lg text-white placeholder-gray-400 transition-all duration-300 focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm hover:bg-white/20 ${errors.pclass ? 'border-red-400 animate-shake' : 'border-white/30'}`}
+                  value={formData.Pclass}
+                  title='pClass'
+                  onChange={(e) => handleInputChange('Pclass', e.target.value)}
+                  className={`w-full px-4 py-3 bg-white/10 border-2 rounded-lg text-white placeholder-gray-400 transition-all duration-300 focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm hover:bg-white/20 ${errors.Pclass ? 'border-red-400 animate-shake' : 'border-white/30'}`}
                 >
                   <option value="" className="bg-gray-800">Select Class</option>
                   <option value="1" className="bg-gray-800">First Class</option>
                   <option value="2" className="bg-gray-800">Second Class</option>
                   <option value="3" className="bg-gray-800">Third Class</option>
                 </select>
-                {errors.pclass && (
-                  <p className="text-red-400 text-sm mt-1 animate-pulse">{errors.pclass}</p>
+                {errors.Pclass && (
+                  <p className="text-red-400 text-sm mt-1 animate-pulse">{errors.Pclass}</p>
                 )}
               </div>
 
@@ -197,17 +206,17 @@ export default function Home() {
                   Gender *
                 </label>
                 <select
-                  value={formData.sex}
+                  value={formData.Sex}
                   title='Sex'
-                  onChange={(e) => handleInputChange('sex', e.target.value)}
-                  className={`w-full px-4 py-3 bg-white/10 border-2 rounded-lg text-white placeholder-gray-400 transition-all duration-300 focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm hover:bg-white/20 ${errors.sex ? 'border-red-400 animate-shake' : 'border-white/30'}`}
+                  onChange={(e) => handleInputChange('Sex', e.target.value)}
+                  className={`w-full px-4 py-3 bg-white/10 border-2 rounded-lg text-white placeholder-gray-400 transition-all duration-300 focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm hover:bg-white/20 ${errors.Sex ? 'border-red-400 animate-shake' : 'border-white/30'}`}
                 >
                   <option value="" className="bg-gray-800">Select Gender</option>
                   <option value="male" className="bg-gray-800">Male</option>
                   <option value="female" className="bg-gray-800">Female</option>
                 </select>
-                {errors.sex && (
-                  <p className="text-red-400 text-sm mt-1 animate-pulse">{errors.sex}</p>
+                {errors.Sex && (
+                  <p className="text-red-400 text-sm mt-1 animate-pulse">{errors.Sex}</p>
                 )}
               </div>
 
@@ -220,13 +229,13 @@ export default function Home() {
                   type="number"
                   min="0.1"
                   step="0.1"
-                  value={formData.age}
-                  onChange={(e) => handleInputChange('age', e.target.value)}
-                  placeholder="Enter age"
-                  className={`w-full px-4 py-3 bg-white/10 border-2 rounded-lg text-white placeholder-gray-400 transition-all duration-300 focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm hover:bg-white/20 ${errors.age ? 'border-red-400 animate-shake' : 'border-white/30'}`}
+                  value={formData.Age}
+                  onChange={(e) => handleInputChange('Age', e.target.value)}
+                  placeholder="Enter Age"
+                  className={`w-full px-4 py-3 bg-white/10 border-2 rounded-lg text-white placeholder-gray-400 transition-all duration-300 focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm hover:bg-white/20 ${errors.Age ? 'border-red-400 animate-shake' : 'border-white/30'}`}
                 />
-                {errors.age && (
-                  <p className="text-red-400 text-sm mt-1 animate-pulse">{errors.age}</p>
+                {errors.Age && (
+                  <p className="text-red-400 text-sm mt-1 animate-pulse">{errors.Age}</p>
                 )}
               </div>
 
@@ -239,13 +248,13 @@ export default function Home() {
                   type="number"
                   min="0"
                   step="0.01"
-                  value={formData.fare}
-                  onChange={(e) => handleInputChange('fare', e.target.value)}
-                  placeholder="Enter fare amount"
-                  className={`w-full px-4 py-3 bg-white/10 border-2 rounded-lg text-white placeholder-gray-400 transition-all duration-300 focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm hover:bg-white/20 ${errors.fare ? 'border-red-400 animate-shake' : 'border-red-400'}`}
+                  value={formData.Fare}
+                  onChange={(e) => handleInputChange('Fare', e.target.value)}
+                  placeholder="Enter Fare amount"
+                  className={`w-full px-4 py-3 bg-white/10 border-2 rounded-lg text-white placeholder-gray-400 transition-all duration-300 focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm hover:bg-white/20 ${errors.Fare ? 'border-red-400 animate-shake' : 'border-red-400'}`}
                 />
-                {errors.fare && (
-                  <p className="text-red-400 text-sm mt-1 animate-pulse">{errors.fare}</p>
+                {errors.Fare && (
+                  <p className="text-red-400 text-sm mt-1 animate-pulse">{errors.Fare}</p>
                 )}
               </div>
 
@@ -255,18 +264,18 @@ export default function Home() {
                   Embarkation Port *
                 </label>
                 <select
-                  value={formData.embarked}
+                  value={formData.Embarked}
                   title='Embarked'
-                  onChange={(e) => handleInputChange('embarked', e.target.value)}
-                  className={`w-full px-4 py-3 bg-white/10 border-2 rounded-lg text-white placeholder-gray-400 transition-all duration-300 focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm hover:bg-white/20 ${errors.embarked ? 'border-red-400 animate-shake' : 'border-white/30'}`}
+                  onChange={(e) => handleInputChange('Embarked', e.target.value)}
+                  className={`w-full px-4 py-3 bg-white/10 border-2 rounded-lg text-white placeholder-gray-400 transition-all duration-300 focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm hover:bg-white/20 ${errors.Embarked ? 'border-red-400 animate-shake' : 'border-white/30'}`}
                 >
                   <option value="" className="bg-gray-800">Select Port</option>
                   <option value="C" className="bg-gray-800">Cherbourg (C)</option>
                   <option value="Q" className="bg-gray-800">Queenstown (Q)</option>
                   <option value="S" className="bg-gray-800">Southampton (S)</option>
                 </select>
-                {errors.embarked && (
-                  <p className="text-red-400 text-sm mt-1 animate-pulse">{errors.embarked}</p>
+                {errors.Embarked && (
+                  <p className="text-red-400 text-sm mt-1 animate-pulse">{errors.Embarked}</p>
                 )}
               </div>
 
@@ -278,13 +287,13 @@ export default function Home() {
                 <input
                   type="number"
                   min="1"
-                  value={formData.familySize}
-                  onChange={(e) => handleInputChange('familySize', e.target.value)}
+                  value={formData.FamilySize}
+                  onChange={(e) => handleInputChange('FamilySize', e.target.value)}
                   placeholder="Total family members"
-                  className={`w-full px-4 py-3 bg-white/10 border-2 rounded-lg text-white placeholder-gray-400 transition-all duration-300 focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm hover:bg-white/20 ${errors.familySize ? 'border-red-400 animate-shake' : 'border-white/30'}`}
+                  className={`w-full px-4 py-3 bg-white/10 border-2 rounded-lg text-white placeholder-gray-400 transition-all duration-300 focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm hover:bg-white/20 ${errors.FamilySize ? 'border-red-400 animate-shake' : 'border-white/30'}`}
                 />
-                {errors.familySize && (
-                  <p className="text-red-400 text-sm mt-1 animate-pulse">{errors.familySize}</p>
+                {errors.FamilySize && (
+                  <p className="text-red-400 text-sm mt-1 animate-pulse">{errors.FamilySize}</p>
                 )}
               </div>
 
@@ -296,10 +305,10 @@ export default function Home() {
                     checked={formData.isAlone}
                     onChange={(e) => handleInputChange('isAlone', e.target.checked)}
                     className="w-5 h-5 text-cyan-400 rounded focus:ring-2 focus:ring-cyan-400 bg-white/10 border-white/30"
-                    disabled={parseInt(formData.familySize, 10) >= 2}
+                    disabled={parseInt(formData.FamilySize, 10) >= 2}
                   />
                   <span className="ml-3 text-gray-200 font-semibold">
-                    Traveling Alone {parseInt(formData.familySize) === 1 && '(Auto-set)'}
+                    Traveling Alone {parseInt(formData.FamilySize) === 1 && '(Auto-set)'}
                   </span>
                 </label>
               </div>
@@ -310,18 +319,18 @@ export default function Home() {
                   Title *
                 </label>
                 <select
-                  value={formData.title}
+                  value={formData.Title}
                   title='Title'
-                  onChange={(e) => handleInputChange('title', e.target.value)}
-                  className={`w-full px-4 py-3 bg-white/10 border-2 rounded-lg text-white placeholder-gray-400 transition-all duration-300 focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm hover:bg-white/20 ${errors.title ? 'border-red-400 animate-shake' : 'border-white/30'}`}
+                  onChange={(e) => handleInputChange('Title', e.target.value)}
+                  className={`w-full px-4 py-3 bg-white/10 border-2 rounded-lg text-white placeholder-gray-400 transition-all duration-300 focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm hover:bg-white/20 ${errors.Title ? 'border-red-400 animate-shake' : 'border-white/30'}`}
                 >
                   <option value="" className="bg-gray-800">Select Title</option>
-                  {titles.map(title => (
-                    <option key={title} value={title} className="bg-gray-800">{title}</option>
+                  {Titles.map(Title => (
+                    <option key={Title} value={Title} className="bg-gray-800">{Title}</option>
                   ))}
                 </select>
-                {errors.title && (
-                  <p className="text-red-400 text-sm mt-1 animate-pulse">{errors.title}</p>
+                {errors.Title && (
+                  <p className="text-red-400 text-sm mt-1 animate-pulse">{errors.Title}</p>
                 )}
               </div>
 
@@ -332,17 +341,17 @@ export default function Home() {
                 </label>
                 <select
                   title='Ticket Prefix'
-                  value={formData.ticketPrefix}
-                  onChange={(e) => handleInputChange('ticketPrefix', e.target.value)}
-                  className={`w-full px-4 py-3 bg-white/10 border-2 rounded-lg text-white placeholder-gray-400 transition-all duration-300 focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm hover:bg-white/20 ${errors.ticketPrefix ? 'border-red-400 animate-shake' : 'border-white/30'}`}
+                  value={formData.TicketPrefix}
+                  onChange={(e) => handleInputChange('TicketPrefix', e.target.value)}
+                  className={`w-full px-4 py-3 bg-white/10 border-2 rounded-lg text-white placeholder-gray-400 transition-all duration-300 focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm hover:bg-white/20 ${errors.TicketPrefix ? 'border-red-400 animate-shake' : 'border-white/30'}`}
                 >
                   <option value="" className="bg-gray-800">Select Prefix</option>
-                  {ticketPrefixes.map(prefix => (
+                  {TicketPrefix.map(prefix => (
                     <option key={prefix} value={prefix} className="bg-gray-800">{prefix}</option>
                   ))}
                 </select>
-                {errors.ticketPrefix && (
-                  <p className="text-red-400 text-sm mt-1 animate-pulse">{errors.ticketPrefix}</p>
+                {errors.TicketPrefix && (
+                  <p className="text-red-400 text-sm mt-1 animate-pulse">{errors.TicketPrefix}</p>
                 )}
               </div>
 
@@ -352,10 +361,10 @@ export default function Home() {
                   Cabin Letter *
                 </label>
                 <select
-                  value={formData.cabinLetter}
+                  value={formData.CabinLetter}
                   title='Cabin Letter'
-                  onChange={(e) => handleInputChange('cabinLetter', e.target.value)}
-                  className={`w-full px-4 py-3 bg-white/10 border-2 rounded-lg text-white placeholder-gray-400 transition-all duration-300 focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm hover:bg-white/20 ${errors.cabinLetter ? 'border-red-400 animate-shake' : 'border-white/30'}`}
+                  onChange={(e) => handleInputChange('CabinLetter', e.target.value)}
+                  className={`w-full px-4 py-3 bg-white/10 border-2 rounded-lg text-white placeholder-gray-400 transition-all duration-300 focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm hover:bg-white/20 ${errors.CabinLetter ? 'border-red-400 animate-shake' : 'border-white/30'}`}
                 >
                   <option value="" className="bg-gray-800">Select Deck</option>
                   {cabinLetters.map(letter => (
@@ -364,8 +373,8 @@ export default function Home() {
                     </option>
                   ))}
                 </select>
-                {errors.cabinLetter && (
-                  <p className="text-red-400 text-sm mt-1 animate-pulse">{errors.cabinLetter}</p>
+                {errors.CabinLetter && (
+                  <p className="text-red-400 text-sm mt-1 animate-pulse">{errors.CabinLetter}</p>
                 )}
               </div>
             </div>
@@ -390,18 +399,18 @@ export default function Home() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                 <div className="bg-white/10 rounded-lg p-4">
                   <div className="text-2xl font-bold text-cyan-400">85%</div>
-                  <div className="text-gray-300">Survival Probability</div>
+                  <div className="text-gray-300">Logistic Regression Prediction</div>
                 </div>
                 <div className="bg-white/10 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-blue-400">{formData.pclass}</div>
+                  <div className="text-2xl font-bold text-blue-400">{formData.Pclass}</div>
                   <div className="text-gray-300">Class</div>
                 </div>
                 <div className="bg-white/10 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-purple-400">{formData.age}</div>
+                  <div className="text-2xl font-bold text-purple-400">{formData.Age}</div>
                   <div className="text-gray-300">Age</div>
                 </div>
                 <div className="bg-white/10 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-pink-400">£{formData.fare}</div>
+                  <div className="text-2xl font-bold text-pink-400">£{formData.Fare}</div>
                   <div className="text-gray-300">Fare</div>
                 </div>
               </div>
