@@ -11,9 +11,10 @@ app=FastAPI()
 
 load_dotenv()
 
-logistic_regression_model=joblib.load("../models/logistic_regression_model.pkl")
-random_forest_model=joblib.load("../models/random_forest_model.pkl")
-model_ensemble=joblib.load("../models/xgboost_model.pkl")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+logistic_regression_model=joblib.load(os.path.join(BASE_DIR, "..", "models", "logistic_regression_model.pkl"))
+random_forest_model=joblib.load(os.path.join(BASE_DIR, "..", "models", "random_forest_model.pkl"))
+model_ensemble=joblib.load(os.path.join(BASE_DIR, "..", "models", "xgboost_model.pkl"))
 
 app.add_middleware(
     CORSMiddleware,
