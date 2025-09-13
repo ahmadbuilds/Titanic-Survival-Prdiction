@@ -11,13 +11,13 @@ app=FastAPI()
 
 load_dotenv()
 
-logistic_regression_model=joblib.load("../models/logistic_regression.joblib")
-random_forest_model=joblib.load("../models/random_forest.joblib")
-model_ensemble=joblib.load("../models/model_ensemble.joblib")
+logistic_regression_model=joblib.load("../models/logistic_regression_model.pkl")
+random_forest_model=joblib.load("../models/random_forest_model.pkl")
+model_ensemble=joblib.load("../models/xgboost_model.pkl")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[os.loadenv("ALLOW_ORIGIN")],
+    allow_origins=[os.getenv("ALLOW_ORIGIN")],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -43,7 +43,7 @@ async def get_prediction(input_data: PredictionInput):
         if data_dict["Sex"]=="male":
             data_dict["Title"]="Mr"
         elif data_dict["Sex"]=="female":
-            if data_dict["FamilySize"]>1:
+            if data_dict["familySize"]>1:
                 data_dict["Title"]="Mrs"
             else:
                 data_dict["Title"]="Miss"
